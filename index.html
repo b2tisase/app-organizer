@@ -44,7 +44,6 @@
       display: flex;
       flex-direction: column;
     }
-    /* Custom subtle scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -59,15 +58,70 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #3b82f6;
     }
-    /* Backdrop blur fallback */
     .modal-backdrop {
-      background-color: rgba(6, 10, 18, 0.78);
+      background-color: rgba(6, 10, 18, 0.85);
       backdrop-filter: blur(8px);
     }
   </style>
 </head>
 <body class="flex flex-col min-h-screen selection:bg-blue-600 selection:text-white">
 
+  <!-- ================= AUTH OVERLAY ================= -->
+  <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0F17]/95 backdrop-blur-md">
+    <div class="relative w-full max-w-md bg-[#131b2c] border border-surface-border rounded-2xl p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">AppHub <span class="text-blue-500">Organizer</span></h2>
+          <p class="text-xs text-slate-400">Secure Personal App Dashboard</p>
+        </div>
+      </div>
+
+      <div class="flex border-b border-surface-border mb-6">
+        <button id="authTabLogin" type="button" class="w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-blue-500 text-blue-400 transition-colors">Sign In</button>
+        <button id="authTabRegister" type="button" class="w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors">Create Account</button>
+      </div>
+
+      <form id="authForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1" for="authEmail">Email Address</label>
+          <input
+            type="email"
+            id="authEmail"
+            required
+            placeholder="you@example.com"
+            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1" for="authPassword">Password</label>
+          <input
+            type="password"
+            id="authPassword"
+            required
+            placeholder="••••••••"
+            minlength="6"
+            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <span class="text-[11px] text-slate-500 mt-1 block">Minimum 6 characters</span>
+        </div>
+
+        <button
+          type="submit"
+          id="authSubmitBtn"
+          class="w-full py-2.5 mt-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30 active:scale-[0.98]"
+        >
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= APP HEADER ================= -->
   <header class="sticky top-0 z-40 w-full bg-[#0B0F17]/90 backdrop-blur-md border-b border-surface-border transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       
@@ -92,10 +146,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="Search 50+ apps or category..." 
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search apps or category..."
             class="w-full bg-[#141c2c] border border-surface-border text-slate-100 text-sm rounded-xl pl-9 pr-8 py-2 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
           <button id="clearSearchBtn" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-200">
@@ -106,9 +160,9 @@
         </div>
       </div>
 
-      <!-- Add App CTA -->
+      <!-- User Info & Actions -->
       <div class="flex items-center gap-3">
-        <button 
+        <button
           id="openAddModalBtn"
           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-all shadow-md shadow-blue-600/20 active:scale-95"
         >
@@ -118,11 +172,26 @@
           <span class="hidden sm:inline">Add New App</span>
           <span class="sm:hidden">Add</span>
         </button>
+
+        <div class="hidden md:flex flex-col text-right">
+          <span id="userDisplayEmail" class="text-xs font-medium text-slate-300 max-w-[140px] truncate">User</span>
+        </div>
+
+        <button
+          id="logoutBtn"
+          title="Sign Out"
+          class="p-2 text-slate-400 hover:text-rose-400 bg-[#141c2c] hover:bg-[#1f2b44] border border-surface-border rounded-xl transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
       </div>
 
     </div>
   </header>
 
+  <!-- ================= MAIN CONTENT ================= -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
     <!-- Category Filter Bar -->
@@ -147,15 +216,17 @@
       </button>
     </div>
 
-    <!-- Active Filter Summary & Result Count -->
+    <!-- Filter Status Text -->
     <div class="flex items-center justify-between text-xs text-slate-400 mb-4 px-1">
-      <div id="filterStatusText">Showing all registered applications</div>
-      <div id="sortLabel" class="text-slate-500 font-mono">Sorted by Name</div>
+      <div id="filterStatusText">Loading your secure apps...</div>
+      <div id="sortLabel" class="text-slate-500 font-mono flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Encrypted Cloud
+      </div>
     </div>
 
-    <div id="appGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <!-- Dynamic App Cards injected here via JavaScript -->
-    </div>
+    <!-- App Card Grid -->
+    <div id="appGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
     <!-- Empty State -->
     <div id="emptyState" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
@@ -165,52 +236,49 @@
         </svg>
       </div>
       <h3 class="text-base font-medium text-slate-200">No applications found</h3>
-      <p class="text-xs text-slate-400 max-w-sm mt-1" id="emptyStateHelpText">Try adjusting your search terms or filter, or add a brand new application to your hub.</p>
-      <button onclick="openAppModal()" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-sm">
+      <p class="text-xs text-slate-400 max-w-sm mt-1">Get started by clicking "Add New App" above to save your bookmarks to your account.</p>
+      <button onclick="window.openAppModal()" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-sm">
         Add Application
       </button>
     </div>
 
   </main>
 
+  <!-- ================= FOOTER ================= -->
   <footer class="mt-auto border-t border-surface-border bg-[#0B0F17] py-6 px-4 sm:px-6 lg:px-8 text-xs text-slate-400">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <span class="font-semibold text-slate-300">AppHub Organizer</span>
         <span class="w-1 h-1 rounded-full bg-slate-600"></span>
-        <span class="text-slate-500">v2.1 • Unified Launchpad</span>
+        <span class="text-slate-500">v2.3 • User Scoped Security</span>
       </div>
       
-      <!-- Export & Import Controls for Data Reliability -->
       <div class="flex items-center gap-2 flex-wrap justify-center">
         <button id="exportJsonBtn" class="px-2.5 py-1 bg-[#141c2c] hover:bg-[#1f2b44] border border-surface-border rounded text-slate-300 transition-colors flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
-          Export Data
+          Export Backup
         </button>
         <label for="importJsonInput" class="px-2.5 py-1 bg-[#141c2c] hover:bg-[#1f2b44] border border-surface-border rounded text-slate-300 transition-colors cursor-pointer flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
-          Import
+          Import JSON
           <input type="file" id="importJsonInput" accept=".json" class="hidden">
         </label>
-        <button id="resetDefaultsBtn" class="px-2.5 py-1 bg-[#141c2c] hover:bg-rose-950/40 border border-surface-border hover:border-rose-900 rounded text-slate-400 hover:text-rose-300 transition-colors">
-          Reset Demo
-        </button>
       </div>
 
       <div class="text-slate-500 text-[11px]">
-        Protected by Client LocalStorage &bull; All systems operational
+        Protected by User Auth & Firestore Rules
       </div>
     </div>
   </footer>
 
+  <!-- ================= ADD / EDIT MODAL ================= -->
   <div id="appModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-backdrop overflow-y-auto">
     <div class="relative w-full max-w-md bg-[#131b2c] border border-surface-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8">
       
-      <!-- Modal Header -->
       <div class="px-6 py-4 border-b border-surface-border flex items-center justify-between">
         <h3 id="modalTitle" class="text-base font-bold text-slate-100">Add New App</h3>
         <button type="button" id="closeModalCrossBtn" class="text-slate-400 hover:text-slate-200 transition-colors">
@@ -220,28 +288,25 @@
         </button>
       </div>
 
-      <!-- Modal Form Body -->
       <form id="appForm" class="p-6 space-y-4">
         <input type="hidden" id="appIdInput" value="">
 
-        <!-- App Name -->
         <div>
           <label for="appNameInput" class="block text-xs font-semibold text-slate-300 mb-1">App Name <span class="text-rose-400">*</span></label>
-          <input 
-            type="text" 
-            id="appNameInput" 
-            required 
-            placeholder="e.g., Notion, Figma, GitHub" 
-            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          <input
+            type="text"
+            id="appNameInput"
+            required
+            placeholder="e.g., Notion, Figma, GitHub"
+            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           >
         </div>
 
-        <!-- Category Dropdown -->
         <div>
           <label for="appCategorySelect" class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
-          <select 
-            id="appCategorySelect" 
-            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+          <select
+            id="appCategorySelect"
+            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
           >
             <option value="Productivity">Productivity</option>
             <option value="Finance">Finance</option>
@@ -253,52 +318,47 @@
           </select>
         </div>
 
-        <!-- URL Input -->
         <div>
           <label for="appUrlInput" class="block text-xs font-semibold text-slate-300 mb-1">Target Web URL <span class="text-rose-400">*</span></label>
-          <input 
-            type="url" 
-            id="appUrlInput" 
-            required 
-            placeholder="https://example.com" 
-            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          <input
+            type="url"
+            id="appUrlInput"
+            required
+            placeholder="https://example.com"
+            class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           >
         </div>
 
-        <!-- Dates Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Creation Date -->
           <div>
             <label for="appCreatedDateInput" class="block text-xs font-semibold text-slate-300 mb-1">Creation Date</label>
-            <input 
-              type="date" 
-              id="appCreatedDateInput" 
+            <input
+              type="date"
+              id="appCreatedDateInput"
               class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
             >
           </div>
-
-          <!-- Launch Date -->
           <div>
             <label for="appLaunchDateInput" class="block text-xs font-semibold text-slate-300 mb-1">Launch Date</label>
-            <input 
-              type="date" 
-              id="appLaunchDateInput" 
+            <input
+              type="date"
+              id="appLaunchDateInput"
               class="w-full bg-[#1b263b] border border-[#2d3d5a] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
             >
           </div>
         </div>
 
-        <!-- Form Actions -->
         <div class="pt-3 border-t border-surface-border flex items-center justify-end gap-3">
-          <button 
-            type="button" 
-            id="cancelModalBtn" 
+          <button
+            type="button"
+            id="cancelModalBtn"
             class="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-[#1b263b] hover:bg-[#253450] border border-[#2d3d5a] rounded-xl transition-all"
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
+            id="saveAppBtn"
             class="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30 active:scale-95"
           >
             Save App
@@ -308,6 +368,7 @@
     </div>
   </div>
 
+  <!-- ================= DELETE MODAL ================= -->
   <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
     <div class="relative w-full max-w-sm bg-[#131b2c] border border-rose-900/40 rounded-2xl shadow-2xl p-6 text-center animate-in fade-in zoom-in-95 duration-150">
       <div class="w-12 h-12 rounded-full bg-rose-950/60 border border-rose-800/60 text-rose-400 mx-auto flex items-center justify-center mb-3">
@@ -316,7 +377,7 @@
         </svg>
       </div>
       <h4 class="text-base font-bold text-white mb-1">Delete Application?</h4>
-      <p class="text-xs text-slate-400 mb-5">Are you sure you want to remove <span id="deleteAppName" class="font-semibold text-slate-200"></span>? This action cannot be undone.</p>
+      <p class="text-xs text-slate-400 mb-5">Are you sure you want to remove <span id="deleteAppName" class="font-semibold text-slate-200"></span>? This syncs immediately across all your devices.</p>
       
       <div class="flex items-center justify-center gap-3">
         <button type="button" id="cancelDeleteBtn" class="w-1/2 py-2 text-xs font-semibold text-slate-300 bg-[#1b263b] hover:bg-[#253450] border border-[#2d3d5a] rounded-xl transition-all">
@@ -332,95 +393,53 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <script>
-    // Storage Key
-    const STORAGE_KEY = 'apphub_organizer_apps_v1';
+  <!-- ================= FIREBASE & APP LOGIC ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged, 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword, 
+      signOut 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      doc, 
+      setDoc, 
+      deleteDoc, 
+      writeBatch 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Default Seed Data mirroring the user's initial state plus requested features
-    const DEFAULT_APPS = [
-      {
-        id: 'app_1',
-        name: 'Google Drive',
-        category: 'Productivity',
-        url: 'https://drive.google.com',
-        createdDate: '2024-01-15',
-        launchDate: '2024-03-01'
-      },
-      {
-        id: 'app_2',
-        name: 'PayPal',
-        category: 'Finance',
-        url: 'https://paypal.com',
-        createdDate: '2023-11-20',
-        launchDate: '2024-02-10'
-      },
-      {
-        id: 'app_3',
-        name: 'X / Twitter',
-        category: 'Social',
-        url: 'https://x.com',
-        createdDate: '2023-08-05',
-        launchDate: '2023-10-15'
-      },
-      {
-        id: 'app_4',
-        name: 'YouTube',
-        category: 'Entertainment',
-        url: 'https://youtube.com',
-        createdDate: '2023-05-12',
-        launchDate: '2023-06-20'
-      },
-      {
-        id: 'app_5',
-        name: 'GitHub',
-        category: 'Productivity',
-        url: 'https://github.com',
-        createdDate: '2024-02-01',
-        launchDate: '2024-04-12'
-      },
-      {
-        id: 'app_6',
-        name: 'Calculator Tool',
-        category: 'Utilities',
-        url: 'https://calculator.net',
-        createdDate: '2024-03-10',
-        launchDate: '2024-03-15'
-      }
-    ];
+    // Firebase Config[cite: 7, 8]
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzEz1Qi-pMQMocP77jEGyimLQDkYghmns",
+      authDomain: "gen-lang-client-0633463996.firebaseapp.com",
+      projectId: "gen-lang-client-0633463996",
+      storageBucket: "gen-lang-client-0633463996.firebasestorage.app",
+      messagingSenderId: "320432803877",
+      appId: "1:320432803877:web:54fdd6858d3757ae9eafcc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // Reactive State
-    let apps = [];
+    let currentUser = null;
+    let unsubscribeSnapshot = null;
+    window.apps = [];
     let currentCategory = 'ALL';
     let searchQuery = '';
     let appToDeleteId = null;
+    let isRegisterMode = false;
 
-    function loadApps() {
-      try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-          apps = JSON.parse(data);
-        } else {
-          apps = [...DEFAULT_APPS];
-          saveApps();
-        }
-      } catch (err) {
-        console.error("Storage read error:", err);
-        apps = [...DEFAULT_APPS];
-      }
-    }
-
-    function saveApps() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
-      } catch (err) {
-        console.error("Storage write error:", err);
-      }
-    }
-
+    // Toast helper
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
-      
       const colors = {
         success: 'bg-emerald-900/90 border-emerald-700 text-emerald-100',
         error: 'bg-rose-900/90 border-rose-700 text-rose-100',
@@ -432,15 +451,9 @@
         <span class="w-1.5 h-1.5 rounded-full ${type === 'success' ? 'bg-emerald-400' : type === 'error' ? 'bg-rose-400' : 'bg-blue-400'}"></span>
         <span>${escapeHtml(message)}</span>
       `;
-
       container.appendChild(toast);
-      
-      // Animate In
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      });
 
-      // Dismiss after 3s
+      requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 250);
@@ -487,20 +500,18 @@
       const appCountBadge = document.getElementById('appCountBadge');
       const filterStatusText = document.getElementById('filterStatusText');
 
-      // Filter by category and search
-      const filtered = apps.filter(app => {
+      const filtered = window.apps.filter(app => {
         const matchCategory = (currentCategory === 'ALL') || (app.category.toLowerCase() === currentCategory.toLowerCase());
         const query = searchQuery.trim().toLowerCase();
-        const matchSearch = !query || 
-          app.name.toLowerCase().includes(query) || 
-          app.category.toLowerCase().includes(query) || 
+        const matchSearch = !query ||
+          app.name.toLowerCase().includes(query) ||
+          app.category.toLowerCase().includes(query) ||
           (app.url && app.url.toLowerCase().includes(query));
 
         return matchCategory && matchSearch;
       });
 
-      // Update counters & headers
-      appCountBadge.textContent = `${apps.length} ${apps.length === 1 ? 'App' : 'Apps'}`;
+      appCountBadge.textContent = `${window.apps.length} ${window.apps.length === 1 ? 'App' : 'Apps'}`;
       
       if (searchQuery.trim()) {
         filterStatusText.textContent = `Found ${filtered.length} match${filtered.length === 1 ? '' : 'es'} for "${searchQuery.trim()}"`;
@@ -510,7 +521,6 @@
         filterStatusText.textContent = `Showing all ${filtered.length} registered applications`;
       }
 
-      // Empty State handling
       if (filtered.length === 0) {
         grid.innerHTML = '';
         emptyState.classList.remove('hidden');
@@ -521,7 +531,6 @@
       emptyState.classList.add('hidden');
       emptyState.classList.remove('flex');
 
-      // Generate HTML cards
       grid.innerHTML = filtered.map(app => {
         const badgeStyle = getCategoryBadgeClass(app.category);
         const safeName = escapeHtml(app.name);
@@ -532,8 +541,6 @@
 
         return `
           <div class="group relative bg-[#131b2c] hover:bg-[#162137] border border-surface-border hover:border-slate-600/60 rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-black/40">
-            
-            <!-- Card Top: Category, Edit & Delete Buttons -->
             <div>
               <div class="flex items-center justify-between gap-2 mb-3">
                 <span class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md border ${badgeStyle}">
@@ -541,9 +548,8 @@
                 </span>
 
                 <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <!-- Edit Icon Button -->
-                  <button 
-                    onclick="openEditModal('${app.id}')"
+                  <button
+                    onclick="window.openEditModal('${app.id}')"
                     title="Edit App"
                     class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-800/80 transition-colors"
                   >
@@ -552,9 +558,8 @@
                     </svg>
                   </button>
 
-                  <!-- Delete Icon Button -->
-                  <button 
-                    onclick="promptDeleteApp('${app.id}')" 
+                  <button
+                    onclick="window.promptDeleteApp('${app.id}')"
                     title="Delete App"
                     class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
                   >
@@ -565,21 +570,16 @@
                 </div>
               </div>
 
-              <!-- App Title -->
               <h3 class="text-base font-semibold text-slate-100 group-hover:text-blue-400 transition-colors truncate" title="${safeName}">
                 ${safeName}
               </h3>
 
-              <!-- URL Snippet -->
               <p class="text-xs text-slate-400 truncate mt-0.5 font-mono opacity-80" title="${safeUrl}">
                 ${safeUrl.replace(/^https?:\/\//, '')}
               </p>
             </div>
 
-            <!-- Card Bottom: Dates Metadata and Launch Button -->
             <div class="mt-4 pt-3 border-t border-[#1f2c45]/60 space-y-3">
-              
-              <!-- Created and Launch dates -->
               <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
                 <div class="flex flex-col">
                   <span class="text-slate-500 font-medium">Created</span>
@@ -591,11 +591,10 @@
                 </div>
               </div>
 
-              <!-- Direct Launch Button -->
-              <a 
-                href="${safeUrl}" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="${safeUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
                 class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-medium text-xs shadow-md shadow-blue-600/20 active:scale-[0.98] transition-all"
               >
                 <span>Launch</span>
@@ -603,14 +602,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
-
             </div>
-
           </div>
         `;
       }).join('');
     }
 
+    // Modal elements
     const modal = document.getElementById('appModal');
     const modalTitle = document.getElementById('modalTitle');
     const appForm = document.getElementById('appForm');
@@ -621,29 +619,27 @@
     const appCreatedDateInput = document.getElementById('appCreatedDateInput');
     const appLaunchDateInput = document.getElementById('appLaunchDateInput');
 
-    function openAppModal(isEdit = false) {
+    window.openAppModal = function(isEdit = false) {
+      if (!currentUser) return;
       if (!isEdit) {
         modalTitle.textContent = 'Add New App';
         appForm.reset();
         appIdInput.value = '';
-        
-        // Auto-fill today's date for creation
-        const today = new Date().toISOString().split('T')[0];
-        appCreatedDateInput.value = today;
+        appCreatedDateInput.value = new Date().toISOString().split('T')[0];
         appLaunchDateInput.value = '';
       }
       modal.classList.remove('hidden');
       setTimeout(() => appNameInput.focus(), 50);
-    }
+    };
 
-    function closeAppModal() {
+    window.closeAppModal = function() {
       modal.classList.add('hidden');
       appForm.reset();
       appIdInput.value = '';
-    }
+    };
 
     window.openEditModal = function(id) {
-      const app = apps.find(a => a.id === id);
+      const app = window.apps.find(a => a.id === id);
       if (!app) return;
 
       modalTitle.textContent = 'Edit App Details';
@@ -654,69 +650,52 @@
       appCreatedDateInput.value = app.createdDate || '';
       appLaunchDateInput.value = app.launchDate || '';
 
-      openAppModal(true);
+      window.openAppModal(true);
     };
 
-    appForm.addEventListener('submit', function(e) {
+    // Save app to users/{uid}/apps/{appId} (Scoped to Security Rules)[cite: 7]
+    appForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      if (!currentUser) return;
       
       const id = appIdInput.value;
       const name = appNameInput.value.trim();
       let url = appUrlInput.value.trim();
       const category = appCategorySelect.value;
-      const createdDate = appCreatedDateInput.value;
-      const launchDate = appLaunchDateInput.value;
+      const createdDate = appCreatedDateInput.value || new Date().toISOString().split('T')[0];
+      const launchDate = appLaunchDateInput.value || '';
 
       if (!name || !url) {
         showToast('Please enter both name and URL', 'error');
         return;
       }
 
-      // Prepend https:// if omitted
       if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
       }
 
-      if (id) {
-        // Updating existing app
-        const index = apps.findIndex(a => a.id === id);
-        if (index !== -1) {
-          apps[index] = {
-            ...apps[index],
-            name,
-            url,
-            category,
-            createdDate,
-            launchDate
-          };
-          showToast(`Updated "${name}"`, 'success');
-        }
-      } else {
-        // Creating new app
-        const newApp = {
-          id: 'app_' + Date.now(),
-          name,
-          url,
-          category,
-          createdDate: createdDate || new Date().toISOString().split('T')[0],
-          launchDate: launchDate || ''
-        };
-        apps.unshift(newApp);
-        showToast(`Added "${name}" to organizer`, 'success');
-      }
+      const docId = id || `app_${Date.now()}`;
+      const payload = { id: docId, name, url, category, createdDate, launchDate };
 
-      saveApps();
-      closeAppModal();
-      renderApps();
+      try {
+        const userAppDoc = doc(db, "users", currentUser.uid, "apps", docId);
+        await setDoc(userAppDoc, payload);
+        showToast(id ? `Updated "${name}"` : `Added "${name}" to Cloud`, 'success');
+        window.closeAppModal();
+      } catch (err) {
+        console.error("Firestore write error:", err);
+        showToast('Permission or Save Error: ' + err.message, 'error');
+      }
     });
 
+    // Delete handling: removes from users/{uid}/apps/{appId}[cite: 7]
     const deleteModal = document.getElementById('deleteModal');
     const deleteAppName = document.getElementById('deleteAppName');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
     window.promptDeleteApp = function(id) {
-      const app = apps.find(a => a.id === id);
+      const app = window.apps.find(a => a.id === id);
       if (!app) return;
       appToDeleteId = id;
       deleteAppName.textContent = app.name;
@@ -730,18 +709,23 @@
 
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
 
-    confirmDeleteBtn.addEventListener('click', function() {
-      if (!appToDeleteId) return;
-      const app = apps.find(a => a.id === appToDeleteId);
+    confirmDeleteBtn.addEventListener('click', async function() {
+      if (!appToDeleteId || !currentUser) return;
+      const app = window.apps.find(a => a.id === appToDeleteId);
       const name = app ? app.name : 'App';
       
-      apps = apps.filter(a => a.id !== appToDeleteId);
-      saveApps();
-      closeDeleteModal();
-      renderApps();
-      showToast(`Deleted "${name}"`, 'info');
+      try {
+        const userAppDoc = doc(db, "users", currentUser.uid, "apps", appToDeleteId);
+        await deleteDoc(userAppDoc);
+        closeDeleteModal();
+        showToast(`Deleted "${name}"`, 'info');
+      } catch (err) {
+        console.error("Firestore delete error:", err);
+        showToast('Delete error: ' + err.message, 'error');
+      }
     });
 
+    // Category button filters
     const categoryButtons = document.querySelectorAll('.category-btn');
     categoryButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -758,7 +742,7 @@
       });
     });
 
-    // Search input listener
+    // Search filters
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
 
@@ -780,64 +764,142 @@
       renderApps();
     });
 
-    // Modal triggers
-    document.getElementById('openAddModalBtn').addEventListener('click', () => openAppModal(false));
-    document.getElementById('closeModalCrossBtn').addEventListener('click', closeAppModal);
-    document.getElementById('cancelModalBtn').addEventListener('click', closeAppModal);
+    document.getElementById('openAddModalBtn').addEventListener('click', () => window.openAppModal(false));
+    document.getElementById('closeModalCrossBtn').addEventListener('click', window.closeAppModal);
+    document.getElementById('cancelModalBtn').addEventListener('click', window.closeAppModal);
 
-    // Close on escape key
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        if (!modal.classList.contains('hidden')) closeAppModal();
+        if (!modal.classList.contains('hidden')) window.closeAppModal();
         if (!deleteModal.classList.contains('hidden')) closeDeleteModal();
       }
     });
 
+    // Export JSON
     document.getElementById('exportJsonBtn').addEventListener('click', () => {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(apps, null, 2));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.apps, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", `apphub_backup_${new Date().toISOString().slice(0,10)}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      showToast('Data exported as JSON', 'success');
+      showToast('Backup JSON downloaded', 'success');
     });
 
-    document.getElementById('importJsonInput').addEventListener('change', function(e) {
+    // Import JSON directly to user's Firestore collection[cite: 7]
+    document.getElementById('importJsonInput').addEventListener('change', async function(e) {
+      if (!currentUser) return;
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = async function(event) {
         try {
           const imported = JSON.parse(event.target.result);
           if (Array.isArray(imported)) {
-            apps = imported;
-            saveApps();
-            renderApps();
+            const batch = writeBatch(db);
+            imported.forEach(item => {
+              const docId = item.id || `app_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+              const docRef = doc(db, "users", currentUser.uid, "apps", docId);
+              batch.set(docRef, { ...item, id: docId });
+            });
+            await batch.commit();
             showToast(`Imported ${imported.length} applications`, 'success');
           } else {
-            showToast('Invalid JSON file structure', 'error');
+            showToast('Invalid JSON structure', 'error');
           }
         } catch (err) {
-          showToast('Failed to parse JSON file', 'error');
+          console.error("Batch import error:", err);
+          showToast('Failed to import apps: ' + err.message, 'error');
         }
       };
       reader.readAsText(file);
-      this.value = ''; // Reset input
+      this.value = '';
     });
 
-    document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
-      apps = [...DEFAULT_APPS];
-      saveApps();
-      renderApps();
-      showToast('Reset back to sample apps', 'info');
+    // ================= AUTH MANAGEMENT =================
+    const authScreen = document.getElementById('authScreen');
+    const authForm = document.getElementById('authForm');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const authTabLogin = document.getElementById('authTabLogin');
+    const authTabRegister = document.getElementById('authTabRegister');
+    const userDisplayEmail = document.getElementById('userDisplayEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    authTabLogin.addEventListener('click', () => {
+      isRegisterMode = false;
+      authTabLogin.className = 'w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-blue-500 text-blue-400 transition-colors';
+      authTabRegister.className = 'w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors';
+      authSubmitBtn.textContent = 'Sign In';
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadApps();
-      renderApps();
+    authTabRegister.addEventListener('click', () => {
+      isRegisterMode = true;
+      authTabRegister.className = 'w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-blue-500 text-blue-400 transition-colors';
+      authTabLogin.className = 'w-1/2 pb-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors';
+      authSubmitBtn.textContent = 'Create Account';
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      authSubmitBtn.disabled = true;
+      authSubmitBtn.textContent = 'Authenticating...';
+
+      try {
+        if (isRegisterMode) {
+          await createUserWithEmailAndPassword(auth, email, password);
+          showToast('Account created successfully!', 'success');
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          showToast('Welcome back!', 'success');
+        }
+      } catch (err) {
+        console.error("Auth error:", err);
+        showToast(err.message.replace('Firebase: ', ''), 'error');
+      } finally {
+        authSubmitBtn.disabled = false;
+        authSubmitBtn.textContent = isRegisterMode ? 'Create Account' : 'Sign In';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => showToast('Signed out', 'info'));
+    });
+
+    // Real-Time Auth State Observer
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        authScreen.classList.add('hidden');
+        userDisplayEmail.textContent = user.email;
+
+        // Attach Scoped Firestore Listener: match /users/{userId}/apps/{appId}[cite: 7]
+        const userAppsCol = collection(db, "users", user.uid, "apps");
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+        unsubscribeSnapshot = onSnapshot(userAppsCol, (snapshot) => {
+          window.apps = [];
+          snapshot.forEach(docSnap => {
+            window.apps.push(docSnap.data());
+          });
+          renderApps();
+        }, (error) => {
+          console.error("User collection sync error:", error);
+          showToast('Access denied: check rules & auth.', 'error');
+        });
+
+      } else {
+        currentUser = null;
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
+        window.apps = [];
+        renderApps();
+        authScreen.classList.remove('hidden');
+      }
     });
   </script>
 </body>
