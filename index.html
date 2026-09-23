@@ -250,7 +250,7 @@
       <div class="flex items-center gap-3">
         <span class="font-semibold text-slate-300">AppHub Organizer</span>
         <span class="w-1 h-1 rounded-full bg-slate-600"></span>
-        <span class="text-slate-500">v2.3 • User Scoped Security</span>
+        <span class="text-slate-500">v2.4 • User Scoped Security</span>
       </div>
       
       <div class="flex items-center gap-2 flex-wrap justify-center">
@@ -359,9 +359,9 @@
           <button
             type="submit"
             id="saveAppBtn"
-            class="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30 active:scale-95"
+            class="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30 active:scale-95 flex items-center gap-1.5"
           >
-            Save App
+            <span>Save App</span>
           </button>
         </div>
       </form>
@@ -413,7 +413,7 @@
       writeBatch 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Firebase Config[cite: 7, 8]
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCzEz1Qi-pMQMocP77jEGyimLQDkYghmns",
       authDomain: "gen-lang-client-0633463996.firebaseapp.com",
@@ -435,6 +435,7 @@
     let searchQuery = '';
     let appToDeleteId = null;
     let isRegisterMode = false;
+    let isSaving = false; // Prevents duplicate form submits
 
     // Toast helper
     function showToast(message, type = 'info') {
@@ -599,7 +600,7 @@
               >
                 <span>Launch</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
             </div>
@@ -653,11 +654,12 @@
       window.openAppModal(true);
     };
 
-    // Save app to users/{uid}/apps/{appId} (Scoped to Security Rules)[cite: 7]
+    // Form Submission: Locked to prevent duplicate entries
     appForm.addEventListener('submit', async function(e) {
       e.preventDefault();
-      if (!currentUser) return;
+      if (!currentUser || isSaving) return;
       
+      const saveBtn = document.getElementById('saveAppBtn');
       const id = appIdInput.value;
       const name = appNameInput.value.trim();
       let url = appUrlInput.value.trim();
@@ -674,6 +676,13 @@
         url = 'https://' + url;
       }
 
+      // Lock to stop duplicate saves
+      isSaving = true;
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+
       const docId = id || `app_${Date.now()}`;
       const payload = { id: docId, name, url, category, createdDate, launchDate };
 
@@ -685,10 +694,16 @@
       } catch (err) {
         console.error("Firestore write error:", err);
         showToast('Permission or Save Error: ' + err.message, 'error');
+      } finally {
+        isSaving = false;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
       }
     });
 
-    // Delete handling: removes from users/{uid}/apps/{appId}[cite: 7]
+    // Delete handling: removes from users/{uid}/apps/{appId}
     const deleteModal = document.getElementById('deleteModal');
     const deleteAppName = document.getElementById('deleteAppName');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -787,7 +802,7 @@
       showToast('Backup JSON downloaded', 'success');
     });
 
-    // Import JSON directly to user's Firestore collection[cite: 7]
+    // Import JSON directly to user's Firestore collection
     document.getElementById('importJsonInput').addEventListener('change', async function(e) {
       if (!currentUser) return;
       const file = e.target.files[0];
@@ -878,7 +893,7 @@
         authScreen.classList.add('hidden');
         userDisplayEmail.textContent = user.email;
 
-        // Attach Scoped Firestore Listener: match /users/{userId}/apps/{appId}[cite: 7]
+        // Attach Scoped Firestore Listener: match /users/{userId}/apps/{appId}
         const userAppsCol = collection(db, "users", user.uid, "apps");
         if (unsubscribeSnapshot) unsubscribeSnapshot();
 
